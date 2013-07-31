@@ -1,0 +1,22 @@
+{
+  "class": "cubrikproject.tud.likelines.pipelets.LikeLines",
+  "parameters": [        
+    {
+      "name": "server",
+      "type": "string"            
+    },
+    {
+      "name": "input_field",
+      "type": "string"            
+    },
+    {
+      "name": "n",
+      "type": "number"            
+    },
+    {
+      "name": "output_field",
+      "type": "string"
+    }
+  ],
+  "description": "LikeLines pipelet. Computes the top <n> most interesting keyframes of the video denoted by the parameter <input_field> using the LikeLines server <server> and stores the time-codes of the keyframes as a sequence in the attribute <output_field>."
+}
