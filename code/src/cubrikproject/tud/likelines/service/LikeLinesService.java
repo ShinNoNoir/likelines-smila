@@ -134,8 +134,8 @@ public class LikeLinesService {
 		
 		// TODO: Filter and sort peaks
 		System.out.println(">> TODO: First version of getNKeyFrames!");
-		double[] timecodes = new double[peaks.peaks.size()];
-		for (int i = 0; i < Math.min(N, timecodes.length); i++) {
+		double[] timecodes = new double[Math.min(N, peaks.peaks.size())];
+		for (int i = 0; i < timecodes.length; i++) {
 			timecodes[i] = peaks.peaks.get(i).x;
 		}
 		return timecodes;
