@@ -1,29 +1,54 @@
-LikeLines pipelet.
+LikeLines pipelet for SMILA 1.1.
 
 Computes the top <n> most interesting keyframes of the video denoted by the 
 parameter <input_field> using the LikeLines server <server> and stores the 
 time-codes of the keyframes as a sequence in the attribute <output_field>.
 
 
-EXAMPLE CONFIGURATION:
+============
+Testing
+============
+To test the pipelet, copy the BPEL file (LikeLinesPipeline.bpel) to your 
+BPEL container folder of SMILA.Application and add the following lines to 
+the deploy.xml file:
 
-    <extensionActivity>
-      <proc:invokePipelet name="invokeLikeLines">
-        <proc:pipelet class="cubrikproject.tud.likelines.pipelets.LikeLines" />
-        <proc:variables input="request" output="request" />
-        <proc:configuration>
-          <rec:Val key="server">http://likelines-shinnonoir.dotcloud.com</rec:Val>
-          <rec:Val key="input_field">youtube_id</rec:Val>
-          <rec:Val key="n">1</rec:Val>
-          <rec:Val key="output_field">topkeyframes</rec:Val>
-        </proc:configuration>
-      </proc:invokePipelet>
-    </extensionActivity>
+  <process name="proc:LikeLinesPipeline">
+    <in-memory>true</in-memory>
+    <provide partnerLink="Pipeline">
+      <service name="proc:LikeLinesPipeline" port="ProcessorPort" />
+    </provide>    
+  </process>
+
+Then, open the Run or Debug Configurations window in Eclipse and check the bundle.
+
+Run SMILA. When it is ready, use a REST client to interact with SMILA:
+
+URL: http://localhost:8080/smila/pipeline/LikeLinesPipeline/process
+BODY to POST:
+{
+  "Text": "Some record",
+  "youtube_id": "YouTube:wPTilA0XxYE"
+}
+
+RESULT (example):
+    {
+       "Text": "Some record",
+       "youtube_id": "YouTube:wPTilA0XxYE",
+       "_recordid": "LikeLinesPipeline-800097b9-62e4-4a7b-aab4-fba8d0df06c7",
+       "topkeyframes":
+       [
+           1,
+           0,
+           0,
+           0
+       ]
+    }
 
 
-EXAMPLE REST QUERY FOR TESTING:
+Alternatively, you can test the 
+!!!!!!!!!!!!!!!!!!!!!!!!TODO
 
-POST http://localhost:8080/smila/pipelets/cubrikproject.tud.likelines.pipelets.LikeLines/process
+http://localhost:8080/smila/pipelets/cubrikproject.tud.likelines.pipelets.LikeLines/process
 {
   "_configuration": {
     "server": "http://likelines-shinnonoir.dotcloud.com",
@@ -51,4 +76,3 @@ POST http://localhost:8080/smila/pipelets/cubrikproject.tud.likelines.pipelets.L
     63.00
   ]
 }
-

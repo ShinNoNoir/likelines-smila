@@ -60,7 +60,7 @@ public class LikeLines implements Pipelet {
 				new ResultCollector(paramAccessor, _log, ProcessingConstants.FAIL_ON_ERROR_DEFAULT);
 
 		final String serverUrl = paramAccessor.getParameter(PARAM_SERVER, DEFAULT_SERVER);
-		final int N = paramAccessor.getRequiredIntParameter(PARAM_N);
+		final int N = Integer.parseInt(paramAccessor.getRequiredParameter(PARAM_N));
 		final String inputField = paramAccessor.getRequiredParameter(PARAM_ATTRIBUTE);
 		final String outputField = paramAccessor.getRequiredParameter(PARAM_OUTPUT);
 		

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<process name="LikeLinesPipeline" targetNamespace="http://www.eclipse.org/smila/processor" 
+  xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+  xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:proc="http://www.eclipse.org/smila/processor" 
+  xmlns:rec="http://www.eclipse.org/smila/record">
+ 
+    <import location="processor.wsdl" namespace="http://www.eclipse.org/smila/processor"
+        importType="http://schemas.xmlsoap.org/wsdl/" />
+ 
+    <partnerLinks>
+        <partnerLink name="Pipeline" partnerLinkType="proc:ProcessorPartnerLinkType" 
+            myRole="service" />
+    </partnerLinks>
+ 
+    <extensions>
+        <extension namespace="http://www.eclipse.org/smila/processor" mustUnderstand="no" />
+    </extensions>
+ 
+    <variables>
+        <variable name="request" messageType="proc:ProcessorMessage" />
+    </variables>
+ 
+    <sequence name="LikeLinesPipeline">
+        <receive name="start" partnerLink="Pipeline" portType="proc:ProcessorPortType" 
+            operation="process" variable="request" createInstance="yes" />
+ 
+        <extensionActivity>
+          <proc:invokePipelet name="invokeLikeLines">
+            <proc:pipelet class="cubrikproject.tud.likelines.pipelets.LikeLines" />
+            <proc:variables input="request" output="request" />
+            <proc:configuration>
+              <rec:Val key="server">http://likelines-shinnonoir.dotcloud.com</rec:Val>
+              <rec:Val key="input_field">youtube_id</rec:Val>
+              <rec:Val key="n">1</rec:Val>
+              <rec:Val key="output_field">topkeyframes</rec:Val>
+            </proc:configuration>
+          </proc:invokePipelet>
+        </extensionActivity>
+ 
+        <reply name="end" partnerLink="Pipeline" portType="proc:ProcessorPortType" 
+            operation="process" variable="request" />
+    </sequence>
+</process>
