@@ -43,7 +43,8 @@ RESULT (example):
     }
 
 
-Alternatively, you can also test the pipelet in isolation using the following REST request:
+Alternatively, if you're running SMILA 1.2, you can also test the pipelet 
+in isolation using the following REST request:
 
 URL: http://localhost:8080/smila/pipelets/cubrikproject.tud.likelines.pipelets.LikeLines/process
 METHOD: POST
