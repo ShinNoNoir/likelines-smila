@@ -15,7 +15,7 @@ import org.eclipse.smila.processing.util.ResultCollector;
 
 import cubrikproject.tud.likelines.util.Peaks;
 import cubrikproject.tud.likelines.webservice.Aggregate;
-import cubrikproject.tud.likelines.webservice.LikeLinesService;
+import cubrikproject.tud.likelines.webservice.LikeLinesWebService;
 
 /**
  * The LikeLines pipelet communicates with a LikeLines server in order to
@@ -72,7 +72,7 @@ public class LikeLines implements Pipelet {
 				if (videoId == null)
 					throw new ProcessingException("Missing videoId");
 				
-				LikeLinesService server = new LikeLinesService(serverUrl);
+				LikeLinesWebService server = new LikeLinesWebService(serverUrl);
 				
 				Aggregate agg = server.aggregate(videoId);
 				for (double d : server.getNKeyFrames(N, agg)) {

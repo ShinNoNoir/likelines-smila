@@ -15,7 +15,7 @@ import cubrikproject.tud.likelines.util.Peaks;
  * 
  * @author R. Vliegendhart
  */
-public class LikeLinesService {
+public class LikeLinesWebService {
 
 	/** The LikeLines server URL with a trailing slash */
 	private final String serverUrl;
@@ -32,7 +32,7 @@ public class LikeLinesService {
 	 *            The address pointing to the LikeLines server
 	 * @throws MalformedURLException When the server URL is not well-formed.
 	 */
-	public LikeLinesService(String url) throws MalformedURLException {
+	public LikeLinesWebService(String url) throws MalformedURLException {
 		serverUrl = ensureTrailingSlash(url);
 	}
 
