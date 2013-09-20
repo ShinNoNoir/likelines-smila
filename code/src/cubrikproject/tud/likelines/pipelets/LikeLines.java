@@ -12,7 +12,9 @@ import org.eclipse.smila.processing.ProcessingException;
 import org.eclipse.smila.processing.parameters.ParameterAccessor;
 import org.eclipse.smila.processing.util.ProcessingConstants;
 import org.eclipse.smila.processing.util.ResultCollector;
+import org.eclipse.smila.utils.service.ServiceUtils;
 
+import cubrikproject.tud.likelines.service.interfaces.LLIndexer;
 import cubrikproject.tud.likelines.webservice.Aggregate;
 import cubrikproject.tud.likelines.webservice.LikeLinesWebService;
 
@@ -44,15 +46,36 @@ public class LikeLines implements Pipelet {
 
 	/** local logger. */
 	private final Log _log = LogFactory.getLog(getClass());
-
+	
+	/** LikeLines indexer service */
+	private LLIndexer _indexer;
+	
 	@Override
 	public void configure(AnyMap configuration) {
 		_config = configuration;
 	}
+	
+	private synchronized LLIndexer getLLIndexer() throws ProcessingException {
+		if (_indexer == null) {
+			try {
+				_indexer = ServiceUtils.getService(LLIndexer.class);
+			} catch (final Exception e) {
+				_log.warn("Error while waiting for LLIndexer service to come up.", e);
+			}
 
+			if (_indexer == null) {
+				throw new ProcessingException("No LLIndexer service available, giving up");
+			}
+		}
+		return _indexer;
+	}
+	
 	@Override
 	public String[] process(Blackboard blackboard, String[] recordIds)
 			throws ProcessingException {
+		
+		_indexer = getLLIndexer();
+		System.out.println(">>> getLLIndexer() = " + _indexer.toString());
 		
 		final ParameterAccessor paramAccessor = new ParameterAccessor(blackboard, _config);
 		final ResultCollector resultCollector = 
