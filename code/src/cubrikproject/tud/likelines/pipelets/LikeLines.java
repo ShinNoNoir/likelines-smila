@@ -13,7 +13,6 @@ import org.eclipse.smila.processing.parameters.ParameterAccessor;
 import org.eclipse.smila.processing.util.ProcessingConstants;
 import org.eclipse.smila.processing.util.ResultCollector;
 
-import cubrikproject.tud.likelines.util.Peaks;
 import cubrikproject.tud.likelines.webservice.Aggregate;
 import cubrikproject.tud.likelines.webservice.LikeLinesWebService;
 
