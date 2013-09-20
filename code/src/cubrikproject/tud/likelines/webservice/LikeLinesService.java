@@ -1,4 +1,4 @@
-package cubrikproject.tud.likelines.service;
+package cubrikproject.tud.likelines.webservice;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

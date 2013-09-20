@@ -13,9 +13,9 @@ import org.eclipse.smila.processing.parameters.ParameterAccessor;
 import org.eclipse.smila.processing.util.ProcessingConstants;
 import org.eclipse.smila.processing.util.ResultCollector;
 
-import cubrikproject.tud.likelines.service.Aggregate;
-import cubrikproject.tud.likelines.service.LikeLinesService;
 import cubrikproject.tud.likelines.util.Peaks;
+import cubrikproject.tud.likelines.webservice.Aggregate;
+import cubrikproject.tud.likelines.webservice.LikeLinesService;
 
 /**
  * The LikeLines pipelet communicates with a LikeLines server in order to

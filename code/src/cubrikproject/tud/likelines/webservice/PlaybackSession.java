@@ -1,4 +1,4 @@
-package cubrikproject.tud.likelines.service;
+package cubrikproject.tud.likelines.webservice;
 
 import java.util.ArrayList;
 import java.util.Iterator;

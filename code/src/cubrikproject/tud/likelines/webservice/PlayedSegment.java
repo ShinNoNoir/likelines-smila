@@ -1,4 +1,4 @@
-package cubrikproject.tud.likelines.service;
+package cubrikproject.tud.likelines.webservice;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
