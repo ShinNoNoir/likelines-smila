@@ -36,8 +36,8 @@ public class Peaks {
 	 * @return A set of peaks
 	 */
 	public static Peaks extract(double[] points, double[] x, double delta) {
-		List<Point> maxtab = new ArrayList<>();
-		List<Point> mintab = new ArrayList<>();
+		List<Point> maxtab = new ArrayList<Point>();
+		List<Point> mintab = new ArrayList<Point>();
 		Peaks res = new Peaks(mintab, maxtab);
 		
 		if (x == null) {

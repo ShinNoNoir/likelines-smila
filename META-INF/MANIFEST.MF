@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: LikeLines
 Bundle-SymbolicName: cubrikproject.tud.likelines
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
  org.apache.commons.logging;version="1.1.1",
  org.eclipse.smila.blackboard,
@@ -11,7 +11,8 @@ Import-Package:
  org.eclipse.smila.processing;version="1.1.0",
  org.eclipse.smila.processing.parameters;version="1.1.0",
  org.eclipse.smila.processing.util;version="1.1.0",
- org.eclipse.smila.utils;version="1.1.0"
+ org.eclipse.smila.utils;version="1.1.0",
+ org.osgi.framework;version="1.7.0"
 Export-Package: cubrikproject.tud.likelines.pipelets
 Bundle-ClassPath: .,
  libs/gson-2.2.4.jar

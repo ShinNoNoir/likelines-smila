@@ -59,7 +59,7 @@ public class Aggregate {
 	 */
 	private static List<Double> readLikedPoints(JsonObject aggregate) {
 		JsonArray likedPoints = aggregate.get("likedPoints").getAsJsonArray();
-		List<Double> res = new ArrayList<>(likedPoints.size());
+		List<Double> res = new ArrayList<Double>(likedPoints.size());
 		
 		for (JsonElement jsonElement : likedPoints) {
 			res.add(jsonElement.getAsDouble());
@@ -78,7 +78,7 @@ public class Aggregate {
 	 */
 	private static List<PlaybackSession> readPlaybacks(JsonObject aggregate) {
 		JsonArray playbacks = aggregate.get("playbacks").getAsJsonArray();
-		List<PlaybackSession> res = new ArrayList<>(playbacks.size());
+		List<PlaybackSession> res = new ArrayList<PlaybackSession>(playbacks.size());
 		
 		for (JsonElement jsonElement : playbacks) {
 			res.add(PlaybackSession.fromJSONArray(jsonElement.getAsJsonArray()));
