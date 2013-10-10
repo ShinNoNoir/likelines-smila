@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -180,20 +180,56 @@ public class YouTubeDL {
 		 * @throws IOException In case of HTTP (e.g., 404) or network errors
 		 */
 		public void downloadTo(String path) throws IOException {
-			FileOutputStream fos = null;
+			final FileOutputStream fos = new FileOutputStream(path);
 			try {
-				URLConnection connection = url.openConnection();;
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				connection.connect();
-				int fileSize = connection.getContentLength();
-				System.err.println("File size: " + fileSize);
 				
-				ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-				fos = new FileOutputStream(path);
-				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				System.err.println("Downloaded: " + fos.getChannel().size());
+				final long downloadSize = Long.parseLong(connection.getHeaderField("Content-Length"));
+				final String lastModified = connection.getHeaderField("Last-Modified");
+				
+				System.err.println("Download size: " + downloadSize);
+				
+				ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+				
+				final long BLOCK_SIZE = Long.MAX_VALUE;
+				long downloaded = 0;
+				long prevDownloaded = -1;
+				boolean done = false;
+				while (!done ) {
+					fos.getChannel().transferFrom(rbc, downloaded, BLOCK_SIZE);
+					downloaded = fos.getChannel().size();
+					
+					boolean shouldResume = (downloadSize == -1)
+							? prevDownloaded != downloaded
+							: downloaded < downloadSize;
+					prevDownloaded = downloaded;
+					
+					if (shouldResume) {
+						System.err.println("Downloaded " + downloaded + "... Resuming...");
+						connection.disconnect();
+						connection = (HttpURLConnection) url.openConnection();
+						connection.setRequestProperty("Range", "bytes="+downloaded+"-");
+						connection.setRequestProperty("If-Range", lastModified);
+						connection.connect();
+						try {
+							rbc = Channels.newChannel(connection.getInputStream());
+						}
+						catch (IOException e) {
+							if (connection.getResponseCode() == 416) {
+								System.err.println("HTTP 416, assume we are done");
+								done = true;
+							}
+							else throw e;
+						}
+					}
+					else done = true;
+				}
+				
+				System.err.println("File size: " + fos.getChannel().size());
 			}
 			finally {
-				if (fos != null) fos.close();
+				fos.close();
 			}
 		}
 		
