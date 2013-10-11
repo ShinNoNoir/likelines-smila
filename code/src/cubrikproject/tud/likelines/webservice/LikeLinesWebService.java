@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
 
 import com.google.gson.JsonObject;
 
@@ -19,8 +26,12 @@ public class LikeLinesWebService {
 
 	/** The LikeLines server URL with a trailing slash */
 	private final String serverUrl;
-
+	
+	/** The webservice call for aggregating interaction sessions */
 	private static final String METHOD_AGGREGATE = "aggregate";
+	
+	/** The webservice call for testing the secret key */
+	private static final String METHOD_TESTKEY = "testKey";
 	
 	/** Default peak detection delta */
 	public final double DEFAULT_PEAK_DELTA = 0.1;
@@ -140,5 +151,62 @@ public class LikeLinesWebService {
 		}
 		return timecodes;
 	}
-
+	
+	/**
+	 * Method to test whether the same secret key is used on the LikeLines server
+	 * by comparing signatures.
+	 * 
+	 * @param secretKey The secret key
+	 * @param payload The payload message that will be signed
+	 * @return True iff the same key is being used
+	 * @throws IOException
+	 */
+	public boolean testKey(String secretKey, String payload) throws IOException {
+		final String url = constructUrl(METHOD_TESTKEY);
+		String sig;
+		try {
+			sig = computeSignature(secretKey, payload);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+			return false;
+		}
+		JsonObject res = Ajax.postJSON(url, new TestKeyRequest(payload, sig)).getAsJsonObject();
+		
+		return res.has("ok") && res.get("ok").getAsString().equals("ok");
+	}
+	
+	/**
+	 * Computes the signature for a given message
+	 * 
+	 * @param secretKey The secret key to be used in computing the signature
+	 * @param message The message to be signed
+	 * @return The signature for the given message
+	 * @throws InvalidKeyException
+	 */
+	public String computeSignature(String secretKey, String message) throws InvalidKeyException {
+		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA1");
+		Mac mac = null;
+		try {
+			mac = Mac.getInstance("HmacSHA1");
+		} catch (NoSuchAlgorithmException e) {
+			assert false : "HmacSHA1 should exist";
+			e.printStackTrace();
+		}
+		mac.init(keySpec);
+		byte[] result = mac.doFinal(message.getBytes());
+		return new String(Base64.encodeBase64(result));
+	}
+	
+	/**
+	 * The schema of the JSON payload for the testKey API call.
+	 */
+	static class TestKeyRequest {
+		final public String msg;
+		final public String sig;
+		private TestKeyRequest(String msg, String sig) {
+			super();
+			this.msg = msg;
+			this.sig = sig;
+		}
+	}
 }
