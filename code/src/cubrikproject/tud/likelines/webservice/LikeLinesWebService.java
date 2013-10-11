@@ -56,7 +56,7 @@ public class LikeLinesWebService {
 	 * @return String with a trailing slash added if it did not end with a
 	 *         slash.
 	 */
-	private String ensureTrailingSlash(String input) {
+	static public String ensureTrailingSlash(String input) {
 		return input.charAt(input.length() - 1) != '/' ? input + '/' : input;
 	}
 
