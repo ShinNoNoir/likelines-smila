@@ -35,6 +35,8 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 	private final String DEFAULT_MOTIONACTIVITY = "motionActivity";
 	private final Map<String, String> secretKeys;
 	
+	private Transcoder transcoder;
+	
 	public LLIndexer() {
 		System.out.println(">>> LLIndexer: Reading (configuration/)" + Activator.BUNDLE_NAME + "/" + propertiesFile);
 		
@@ -51,6 +53,8 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		
 		secretKeys = getSecretKeys();
 		testSecretKeys(secretKeys);
+		
+		transcoder = (ffmpegPath == null) ? null : new Transcoder(ffmpegPath);
 		
 		if (_log.isInfoEnabled()) {
 			_log.info("LLIndexer created using following setting");
