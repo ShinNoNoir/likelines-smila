@@ -176,6 +176,21 @@ public class LikeLinesWebService {
 	}
 	
 	/**
+	 * Method to test whether the same secret key is used on the LikeLines server
+	 * by comparing signatures.
+	 * 
+	 * This method will generate a random string and delegate the call to {@link #testKey(String, String)}.
+	 * 
+	 * @param secretKey The secret key
+	 * @return True iff the same key is being used
+	 * @throws IOException 
+	 */
+	public boolean testKey(String secretKey) throws IOException {
+		final String payload = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		return testKey(secretKey, payload);
+	}
+	
+	/**
 	 * Computes the signature for a given message
 	 * 
 	 * @param secretKey The secret key to be used in computing the signature
@@ -209,4 +224,5 @@ public class LikeLinesWebService {
 			this.sig = sig;
 		}
 	}
+	
 }

@@ -1,8 +1,13 @@
 package cubrikproject.tud.likelines.service.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import cubrikproject.tud.likelines.service.activator.Activator;
@@ -45,6 +50,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 				findOnPath(DEFAULT_MOTIONACTIVITY) : motionActivityPathFromProps;	
 		
 		secretKeys = getSecretKeys();
+		testSecretKeys(secretKeys);
 		
 		if (_log.isInfoEnabled()) {
 			_log.info("LLIndexer created using following setting");
@@ -130,5 +136,46 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		}
 
 		return res;
+	}
+	
+	/**
+	 * Tests and removes secret keys that are invalid.
+	 * 
+	 * @param secretKeys
+	 */
+	private static void testSecretKeys(Map<String,String> secretKeys) {
+		final List<String> failedServers = new ArrayList<String>();
+		
+		for (final Entry<String, String> kv : secretKeys.entrySet()) {
+			final String server = kv.getKey();
+			final String key = kv.getValue();
+			
+			LikeLinesWebService llserver = null;
+			try {
+				llserver = new LikeLinesWebService(server);
+			} catch (MalformedURLException e) {
+				_log.warn("LLIndexer: testSecretKeys: malformed URL in server: " + server);
+				failedServers.add(server);
+				e.printStackTrace();
+				continue;
+			}
+			
+			try {
+				if (!llserver.testKey(key)) {
+					_log.warn("LLIndexer: testSecretKeys: incorrect key for server: " + server);
+					failedServers.add(server);
+					continue;
+				}
+					
+			} catch (IOException e) {
+				_log.warn("LLIndexer: testSecretKeys: I/O error, server down? " + server);
+				failedServers.add(server);
+				e.printStackTrace();
+				continue;
+			}
+		}
+		
+		for (final String server : failedServers)
+			secretKeys.remove(server);
 	}
 }
