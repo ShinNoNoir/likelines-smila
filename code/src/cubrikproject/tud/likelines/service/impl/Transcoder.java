@@ -1,6 +1,8 @@
 package cubrikproject.tud.likelines.service.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * The Transcoder class converts downloaded videos into a specific format required by the motion analysis tool.
@@ -46,6 +48,8 @@ public class Transcoder {
 	 */
 	public int transcodeAndWait(String source, String destination) throws IOException, InterruptedException {
 		final Process proc = transcode(source, destination);
+		BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+		while (br.readLine() != null);
 		return proc.waitFor();
 	}
 }
