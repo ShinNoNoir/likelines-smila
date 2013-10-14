@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,11 +88,60 @@ public class Ajax {
 	 *             When the JSON value cannot be posted
 	 */
 	public static JsonElement postJSON(URL url, Object data) throws IOException {
-		JsonParser jp = new JsonParser();
+		final byte[] jsonBytes = jsonSerialize(data);
+		return postSerializedJSON(url, jsonBytes);
+	}
+
+	/**
+	 * Serialize an object to JSON
+	 * 
+	 * @param data Object to serialize
+	 * @return Serialized object using JSON notation
+	 */
+	public static byte[] jsonSerialize(Object data) {
 		final Gson gson = new Gson();
 		
 		final String json = gson.toJson(data);
-		final byte[] jsonBytes = json.getBytes("utf-8");
+		byte[] jsonBytes;
+		try {
+			jsonBytes = json.getBytes("utf-8");
+			return jsonBytes;
+		}
+		catch (UnsupportedEncodingException e) {
+			assert false : "UTF8 should be supported";
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Posts an already serialized JSON value to the given URL.
+	 * 
+	 * @param url
+	 *            URL to post JSON resource to
+	 * @param jsonBytes
+	 *            Serialized JSON value to be posted
+	 * @return JSON response
+	 * @throws IOException
+	 *             When the JSON value cannot be posted
+	 */
+	public static JsonElement postSerializedJSON(String url, byte[] payload) throws MalformedURLException, IOException {
+		return postSerializedJSON(new URL(url), payload);
+	}
+	
+	/**
+	 * Posts an already serialized JSON value to the given URL.
+	 * 
+	 * @param url
+	 *            URL to post JSON resource to
+	 * @param jsonBytes
+	 *            Serialized JSON value to be posted
+	 * @return JSON response
+	 * @throws IOException
+	 *             When the JSON value cannot be posted
+	 */
+	public static JsonElement postSerializedJSON(URL url, final byte[] jsonBytes) throws IOException {
+		JsonParser jp = new JsonParser();
 		
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setDoOutput(true);

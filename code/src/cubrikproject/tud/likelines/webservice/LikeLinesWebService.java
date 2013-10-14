@@ -33,6 +33,9 @@ public class LikeLinesWebService {
 	/** The webservice call for testing the secret key */
 	private static final String METHOD_TESTKEY = "testKey";
 	
+	/** The webservice call for posting MCA */
+	private static final String METHOD_POSTMCA = "postMCA?s=";
+	
 	/** Default peak detection delta */
 	public final double DEFAULT_PEAK_DELTA = 0.1;
 	
@@ -199,6 +202,18 @@ public class LikeLinesWebService {
 	 * @throws InvalidKeyException
 	 */
 	public String computeSignature(String secretKey, String message) throws InvalidKeyException {
+		return computeSignature(secretKey, message.getBytes());
+	}
+	
+	/**
+	 * Computes the signature for a given message
+	 * 
+	 * @param secretKey The secret key to be used in computing the signature
+	 * @param message The message to be signed
+	 * @return The signature for the given message
+	 * @throws InvalidKeyException
+	 */
+	public String computeSignature(String secretKey, byte[] message) throws InvalidKeyException {
 		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA1");
 		Mac mac = null;
 		try {
@@ -208,7 +223,7 @@ public class LikeLinesWebService {
 			e.printStackTrace();
 		}
 		mac.init(keySpec);
-		byte[] result = mac.doFinal(message.getBytes());
+		byte[] result = mac.doFinal(message);
 		return new String(Base64.encodeBase64(result));
 	}
 	
@@ -219,10 +234,63 @@ public class LikeLinesWebService {
 		final public String msg;
 		final public String sig;
 		private TestKeyRequest(String msg, String sig) {
-			super();
 			this.msg = msg;
 			this.sig = sig;
 		}
 	}
 	
+	/** MCA type: points */
+	public final String MCA_TYPE_POINT = "point";
+	
+	/** MCA type: curve */
+	public final String MCA_TYPE_CURVE = "curve";
+	
+	/**
+	 * Posts MCA analysis results to the server for a given video
+	 * 
+	 * @param videoId The ID of the video
+	 * @param mcaName The MCA algorithm
+	 * @param mcaType The type of the MCA output (continuous "curve" or individual "points")
+	 * @param mcaData The MCA output
+	 * @param secretKey The secret key of the server
+	 * @return True on success
+	 * @throws IOException
+	 */
+	public boolean postMCA(String videoId, String mcaName, String mcaType, double[] mcaData, String secretKey) throws IOException {
+		final String baseUrl = constructUrl(METHOD_POSTMCA);
+		final PostMCARequest request = new PostMCARequest(videoId, mcaName, mcaType, mcaData);
+		final byte[] payload = Ajax.jsonSerialize(request);
+		
+		String sig;
+		try {
+			sig = computeSignature(secretKey, payload);
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		final String url = baseUrl + URLEncoder.encode(sig, "UTF-8");
+		JsonObject res = Ajax.postSerializedJSON(url, payload).getAsJsonObject();
+		
+		return res.has("ok") && res.get("ok").getAsString().equals("ok");
+	}
+	
+	/**
+	 * The schema of the JSON payload for the postMCA API call.
+	 */
+	static class PostMCARequest {
+		final public String videoId;
+		final public String mcaName;
+		final public String mcaType;
+		final public double[] mcaData;
+		
+		private PostMCARequest(String videoId, String mcaName, String mcaType, double[] mcaData) {
+			this.videoId = videoId;
+			this.mcaName = mcaName;
+			this.mcaType = mcaType;
+			this.mcaData = mcaData;
+		}
+		
+	}
 }
+
