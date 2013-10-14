@@ -75,7 +75,6 @@ public class LikeLines implements Pipelet {
 			throws ProcessingException {
 		
 		_indexer = getLLIndexer();
-		System.out.println(">>> getLLIndexer() = " + _indexer.toString());
 		
 		final ParameterAccessor paramAccessor = new ParameterAccessor(blackboard, _config);
 		final ResultCollector resultCollector = 

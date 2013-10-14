@@ -6,6 +6,8 @@ import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,6 +18,7 @@ import com.google.gson.JsonObject;
 
 import cubrikproject.tud.likelines.util.Ajax;
 import cubrikproject.tud.likelines.util.Peaks;
+import cubrikproject.tud.likelines.util.Peaks.Point;
 
 /**
  * The proxy class to talk with a LikeLines server.
@@ -146,9 +149,12 @@ public class LikeLinesWebService {
 		double[] heatmap = aggregate.heatmap(aggregate.durationEstimate);
 		Peaks peaks = Peaks.extract(heatmap, null, DEFAULT_PEAK_DELTA);
 		
-		// TODO: Filter and sort peaks
-		System.out.println(">> TODO: First version of getNKeyFrames!");
 		double[] timecodes = new double[Math.min(N, peaks.peaks.size())];
+		Collections.sort(peaks.peaks, new Comparator<Point>() {
+			@Override public int compare(Point p1, Point p2) {
+				return -Double.compare(p1.y, p2.y);
+			}
+		});
 		for (int i = 0; i < timecodes.length; i++) {
 			timecodes[i] = peaks.peaks.get(i).x;
 		}
