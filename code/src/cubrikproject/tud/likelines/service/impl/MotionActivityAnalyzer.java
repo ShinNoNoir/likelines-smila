@@ -52,7 +52,7 @@ public class MotionActivityAnalyzer {
 		while ((line = br.readLine()) != null) {
 			values.add(Double.parseDouble(line));
 		}
-				
+		
 		double[] scores = processSpecialFrames(values);
 		applyClippingAndNormalize(scores);
 		applyMedianFilter(scores);

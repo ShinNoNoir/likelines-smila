@@ -50,7 +50,7 @@ public class Ajax {
 		final JsonParser jp = new JsonParser();
 		
 		final URLConnection conn = url.openConnection();
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 		
 		return jp.parse(reader);
 	}
