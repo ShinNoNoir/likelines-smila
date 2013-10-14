@@ -81,6 +81,9 @@ public class YouTubeComment {
 				}
 			}
 			
+			if (feed.get("entry") == null)
+				break;
+			
 			for (JsonElement entryElement : feed.get("entry").getAsJsonArray()) {
 				JsonObject entry = entryElement.getAsJsonObject();
 				
