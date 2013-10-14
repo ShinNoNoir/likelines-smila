@@ -1,7 +1,5 @@
 package cubrikproject.tud.likelines.pipelets;
 
-import java.net.MalformedURLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
