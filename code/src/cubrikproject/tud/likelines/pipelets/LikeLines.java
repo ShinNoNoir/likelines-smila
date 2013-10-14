@@ -1,5 +1,7 @@
 package cubrikproject.tud.likelines.pipelets;
 
+import java.net.MalformedURLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,6 +51,9 @@ public class LikeLines implements Pipelet {
 	
 	/** LikeLines indexer service */
 	private LLIndexer _indexer;
+	
+	/** Threshold for MCA */
+	public final int PERFORM_MCA_THRESHOLD = 5;
 	
 	@Override
 	public void configure(AnyMap configuration) {
@@ -100,6 +105,9 @@ public class LikeLines implements Pipelet {
 					timecodes.add(d);
 				}
 				resultCollector.addResult(id);
+				
+				if (agg.playbacks.size() < PERFORM_MCA_THRESHOLD)
+					_indexer.scheduleMCA(videoId, server);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
