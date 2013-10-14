@@ -28,7 +28,7 @@ import cubrikproject.tud.likelines.util.Peaks.Point;
 public class LikeLinesWebService {
 
 	/** The LikeLines server URL with a trailing slash */
-	private final String serverUrl;
+	public final String serverUrl;
 	
 	/** The webservice call for aggregating interaction sessions */
 	private static final String METHOD_AGGREGATE = "aggregate";
