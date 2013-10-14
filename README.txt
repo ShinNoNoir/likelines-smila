@@ -4,6 +4,15 @@ Computes the top <n> most interesting keyframes of the video denoted by the
 parameter <input_field> using the LikeLines server <server> and stores the 
 time-codes of the keyframes as a sequence in the attribute <output_field>.
 
+============
+Configuring
+============
+In order to have the SMILA pipelet invoke content analysis on videos, 
+the LLIndexer component needs to be configured. Please see
+
+  configuration/README.txt
+
+for more information.
 
 ============
 Testing
