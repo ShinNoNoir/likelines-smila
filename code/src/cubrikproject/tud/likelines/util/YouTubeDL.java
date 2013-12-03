@@ -72,22 +72,22 @@ public class YouTubeDL {
 	/**
 	 * Validates a YouTube video ID.
 	 * 
-	 * @param videoId The YouTube video ID to be validated.
+	 * @param youtubeVideoId The YouTube video ID to be validated.
 	 * @return True iff the input is a valid YouTube ID.
 	 */
-	public static boolean validateYouTubeID(String videoId) {
-		return RE_YOUTUBE_ID.matcher(videoId).matches();
+	public static boolean validateYouTubeID(String youtubeVideoId) {
+		return RE_YOUTUBE_ID.matcher(youtubeVideoId).matches();
 	}
 	
 	/**
 	 * Get the VideoInfo for a YouTube video. 
 	 * 
-	 * @param videoId YouTube video id
+	 * @param youtubeVideoId YouTube video id
 	 * @return Video Info map
 	 * @throws IOException In case of HTTP (e.g., 404) or network errors
 	 */
-	public static Map<String, String> getVideoInfo(String videoId) throws IOException {
-		final String url = "http://www.youtube.com/get_video_info?&video_id=" + videoId + "&el=detailpage&ps=default&eurl=&gl=US&hl=en";
+	public static Map<String, String> getVideoInfo(String youtubeVideoId) throws IOException {
+		final String url = "http://www.youtube.com/get_video_info?&video_id=" + youtubeVideoId + "&el=detailpage&ps=default&eurl=&gl=US&hl=en";
 
 		try {
 			String queryString = downloadAsString(url);

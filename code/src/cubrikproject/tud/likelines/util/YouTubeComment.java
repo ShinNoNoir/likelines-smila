@@ -48,11 +48,11 @@ public class YouTubeComment {
 	
 	/**
 	 * Returns the URL for retrieving comments of a given video
-	 * @param videoId The ID of the video
+	 * @param youtubeVideoId The ID of the video
 	 * @return Comments URL for the given video
 	 */
-	private static String getFirstCommentsPage(String videoId) {
-		return "http://gdata.youtube.com/feeds/api/videos/" + videoId + "/comments?v=2&alt=json";
+	private static String getFirstCommentsPage(String youtubeVideoId) {
+		return "http://gdata.youtube.com/feeds/api/videos/" + youtubeVideoId + "/comments?v=2&alt=json";
 	}
 	
 	/**

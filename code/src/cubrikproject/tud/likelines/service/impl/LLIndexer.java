@@ -105,9 +105,16 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			System.err.println("MCATask: Starting: " + videoId);
 			String secretKey = secretKeys.get(serverUrl);
 			
+			if (!videoId.startsWith("YouTube:")) {
+				System.err.println("MCATask only supports YouTube:<id>!");
+				return;
+			}
+			// future implementation should introduce branches for different URL schemes
+			final String youtubeId = videoId.substring("YouTube:".length());
+			
 			try {
-				final Map<String, String> videoInfo = YouTubeDL.getVideoInfo(videoId);
-				final boolean ageGate = YouTubeDL.isAgeRestrictedVideo(videoId);
+				final Map<String, String> videoInfo = YouTubeDL.getVideoInfo(youtubeId);
+				final boolean ageGate = YouTubeDL.isAgeRestrictedVideo(youtubeId);
 				
 				YouTubeStream firstStream = null;
 				for (YouTubeStream stream : YouTubeDL.getDownloadStreams(videoInfo, ageGate)) {
@@ -120,10 +127,10 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 					return;
 				}
 				
-				final String downloadPath = new File(tmpPath, "mca-" + videoId + firstStream.getExtension()).getPath();
+				final String downloadPath = new File(tmpPath, "mca-" + youtubeId + firstStream.getExtension()).getPath();
 				firstStream.downloadTo(downloadPath);
 				
-				final String convertPath = new File(tmpPath, "mca-" + videoId + "-conv.mpg").getPath();
+				final String convertPath = new File(tmpPath, "mca-" + youtubeId + "-conv.mpg").getPath();
 				boolean transcodeSuccess = transcoder.transcodeAndWait(downloadPath, convertPath) == 0;
 				
 				System.err.println("MCATask: Done converting, now starting motion analysis");
@@ -133,7 +140,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 				System.err.println("MCATask: Now downloading comments");
 				
 				List<Integer> deeplinksList = new ArrayList<Integer>();
-				for (YouTubeComment cmnt : YouTubeComment.retrieveDeepLinkComments(videoId))
+				for (YouTubeComment cmnt : YouTubeComment.retrieveDeepLinkComments(youtubeId))
 					for (TimePoint deeplink : cmnt.deeplinks)
 						deeplinksList.add(deeplink.inSeconds);
 				
@@ -153,6 +160,10 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			catch (InterruptedException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
+			}
+			catch (RuntimeException e) {
+				e.printStackTrace();
+				throw e;
 			}
 			
 			System.err.println("MCATask: Done: " + videoId);
