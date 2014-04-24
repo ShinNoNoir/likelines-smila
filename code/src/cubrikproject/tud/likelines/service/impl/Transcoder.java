@@ -42,7 +42,7 @@ public class Transcoder {
 	 * 
 	 * @param source The video to be transcoded
 	 * @param destination The location to store the transcoded video
-	 * @return A Process handle
+	 * @return The exit value of the process
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
