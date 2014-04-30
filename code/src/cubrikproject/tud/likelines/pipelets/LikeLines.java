@@ -109,8 +109,7 @@ public class LikeLines implements Pipelet {
 				resultCollector.addResult(id);
 				
 				boolean contentAnalysisRequired = agg.playbacks.size() < PERFORM_MCA_THRESHOLD || forceMCA;
-				if (contentAnalysisRequired)
-					_indexer.scheduleMCA(videoId, server, contentAnalysisRequired);
+				_indexer.scheduleMCA(videoId, server, contentAnalysisRequired);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
