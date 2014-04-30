@@ -148,9 +148,15 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 				final String convertPath = new File(indexStoragePath, "mca-" + youtubeId + "-conv.mpg").getPath();
 				boolean transcodeSuccess = transcoder.transcodeAndWait(downloadPath, convertPath) == 0;
 				
-				System.err.println("MCATask: Done converting, now starting motion analysis");
-				
-				final double[] motionScores = motionActivityAnalyzer.analyze(convertPath);
+				final double[] motionScores;
+				if (contentAnalysisRequired) {
+					System.err.println("MCATask: Done converting, now starting motion analysis");
+					motionScores = motionActivityAnalyzer.analyze(convertPath);
+				}
+				else {
+					System.err.println("MCATask: Skipping motion analysis (not required)");
+					motionScores = null;
+				}
 				
 				System.err.println("MCATask: Now downloading comments");
 				
@@ -165,7 +171,9 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 				
 				System.err.println("MCATask: Submitting MCA results to server: " + serverUrl);
 				
-				llServer.postMCA(videoId, "motionActivity", llServer.MCA_TYPE_CURVE, motionScores, secretKey);
+				if (motionScores != null) {
+					llServer.postMCA(videoId, "motionActivity", llServer.MCA_TYPE_CURVE, motionScores, secretKey);
+				}
 				llServer.postMCA(videoId, "deeplinks", llServer.MCA_TYPE_POINT, deeplinks, secretKey);
 			}
 			catch (IOException e) {
