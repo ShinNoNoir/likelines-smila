@@ -90,7 +90,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 	}
 	
 	@Override
-	synchronized public void scheduleMCA(String videoId, LikeLinesWebService llServer) {
+	synchronized public void scheduleMCA(String videoId, LikeLinesWebService llServer, boolean contentAnalysisRequired) {
 		if (indexedVideos.contains(videoId)) {
 			System.err.println("scheduleMCA: Ignoring videoId " + videoId + " since it's being indexed or has been.");
 			return;
