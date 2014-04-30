@@ -97,7 +97,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		}
 		// For now, simplistic mechanism to prevent duplicate work:
 		indexedVideos.add(videoId); 
-		Thread thread = new Thread(new MCATask(videoId, llServer));
+		Thread thread = new Thread(new MCATask(videoId, llServer, contentAnalysisRequired));
 		thread.start();
 	}
 	
@@ -105,12 +105,14 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		
 		private final String videoId;
 		private final LikeLinesWebService llServer;
-		private final String serverUrl; 
+		private final String serverUrl;
+		private final boolean contentAnalysisRequired; 
 		
-		public MCATask(String videoId, LikeLinesWebService llServer) {
+		public MCATask(String videoId, LikeLinesWebService llServer, boolean contentAnalysisRequired) {
 			this.videoId = videoId;
 			this.llServer = llServer;
 			this.serverUrl = llServer.serverUrl;
+			this.contentAnalysisRequired = contentAnalysisRequired;
 		}
 		
 		@Override
