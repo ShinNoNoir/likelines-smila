@@ -192,6 +192,9 @@ public class Aggregate {
 		double[] curve = new double[curveSize];
 		
 		for (MCAData curMCA : mcaData.values()) {
+			if (curMCA.data.size() == 0)
+				continue;
+			
 			double[] curCurve = null;
 			double weight = curMCA.weight;
 			
