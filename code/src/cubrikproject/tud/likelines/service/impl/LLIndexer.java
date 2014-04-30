@@ -36,6 +36,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 	
 	private final String ffmpegPath;
 	private final String motionActivityPath;
+	private final String indexStoragePath;
 	
 	private final String DEFAULT_FFMPEG = "ffmpeg";
 	private final String DEFAULT_MOTIONACTIVITY = "motionActivity";
@@ -65,6 +66,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		
 		transcoder = (ffmpegPath == null) ? null : new Transcoder(ffmpegPath);
 		motionActivityAnalyzer = (motionActivityPath == null) ? null : new MotionActivityAnalyzer(motionActivityPath);
+		indexStoragePath = prepareIndexStorage();
 		
 		if (_log.isInfoEnabled()) {
 			_log.info("LLIndexer created using following setting");
@@ -72,6 +74,19 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			_log.info(" -motionActivityPath=" + motionActivityPath);
 		}
 
+	}
+	
+	private String prepareIndexStorage() {
+		final String configuredIndexStoragePath = getProperty("indexStoragePath");
+		
+		final File indexStoragePathFile = (configuredIndexStoragePath == null) 
+			? new File(System.getProperty("java.io.tmpdir"), "SMILA_LL_IndexStorage")
+			: new File(configuredIndexStoragePath);
+
+		if (!indexStoragePathFile.exists())
+			indexStoragePathFile.mkdirs();
+
+		return indexStoragePathFile.getPath();
 	}
 	
 	@Override
@@ -89,7 +104,6 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 	public class MCATask implements Runnable {
 		
 		private final String videoId;
-		private final String tmpPath;
 		private final LikeLinesWebService llServer;
 		private final String serverUrl; 
 		
@@ -97,7 +111,6 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			this.videoId = videoId;
 			this.llServer = llServer;
 			this.serverUrl = llServer.serverUrl;
-			tmpPath = System.getProperty("java.io.tmpdir");
 		}
 		
 		@Override
@@ -127,10 +140,10 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 					return;
 				}
 				
-				final String downloadPath = new File(tmpPath, "mca-" + youtubeId + firstStream.getExtension()).getPath();
+				final String downloadPath = new File(indexStoragePath, "mca-" + youtubeId + firstStream.getExtension()).getPath();
 				firstStream.downloadTo(downloadPath);
 				
-				final String convertPath = new File(tmpPath, "mca-" + youtubeId + "-conv.mpg").getPath();
+				final String convertPath = new File(indexStoragePath, "mca-" + youtubeId + "-conv.mpg").getPath();
 				boolean transcodeSuccess = transcoder.transcodeAndWait(downloadPath, convertPath) == 0;
 				
 				System.err.println("MCATask: Done converting, now starting motion analysis");
