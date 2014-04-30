@@ -16,6 +16,11 @@
     {
       "name": "output_field",
       "type": "string"
+    },
+    {
+      "name": "force_mca",
+      "type": "boolean",
+      "optional": true
     }
   ],
   "description": "LikeLines pipelet. Computes the top <n> most interesting keyframes of the video denoted by the parameter <input_field> using the LikeLines server <server> and stores the time-codes of the keyframes as a sequence in the attribute <output_field>."
