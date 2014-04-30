@@ -38,9 +38,12 @@ public class LikeLines implements Pipelet {
 	/** config property name for the number of top keyframes to find. */
 	private static final String PARAM_N = "n";
 
-	/** config property name-prefix for storing the output. */
+	/** config property name for storing the output. */
 	private static final String PARAM_OUTPUT = "output_field";
-
+	
+	/** config property name for forcing MCA. */
+	private static final String PARAM_FORCE_MCA = "force_mca";
+	
 	/** the pipelet's configuration. */
 	private AnyMap _config;
 
@@ -87,6 +90,7 @@ public class LikeLines implements Pipelet {
 		final int N = Integer.parseInt(paramAccessor.getRequiredParameter(PARAM_N));
 		final String inputField = paramAccessor.getRequiredParameter(PARAM_ATTRIBUTE);
 		final String outputField = paramAccessor.getRequiredParameter(PARAM_OUTPUT);
+		final boolean forceMCA = Boolean.parseBoolean(paramAccessor.getParameter(PARAM_FORCE_MCA, "false"));
 		
 		for (String id : recordIds) {
 			try {
@@ -104,7 +108,7 @@ public class LikeLines implements Pipelet {
 				}
 				resultCollector.addResult(id);
 				
-				if (agg.playbacks.size() < PERFORM_MCA_THRESHOLD)
+				if (agg.playbacks.size() < PERFORM_MCA_THRESHOLD || forceMCA)
 					_indexer.scheduleMCA(videoId, server);
 			}
 			catch (Exception e) {
