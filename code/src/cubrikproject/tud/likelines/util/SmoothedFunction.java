@@ -37,7 +37,8 @@ public class SmoothedFunction {
 		for (double point : data)
 			y += gaussian( (x-point) / h );
 		
-		y /= n*h;
+		if (n > 0)
+			y /= n*h;
 		return y;
 	}
 	
