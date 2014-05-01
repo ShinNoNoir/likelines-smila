@@ -252,19 +252,20 @@ public class LikeLinesWebService {
 	public final String MCA_TYPE_CURVE = "curve";
 	
 	/**
-	 * Posts MCA analysis results to the server for a given video
+	 * Posts MCA analysis results to the server for a given video.
 	 * 
 	 * @param videoId The ID of the video
 	 * @param mcaName The MCA algorithm
 	 * @param mcaType The type of the MCA output (continuous "curve" or individual "points")
 	 * @param mcaData The MCA output
 	 * @param secretKey The secret key of the server
+	 * @param weight Weight of this MCA analysis in the heat-map aggregate
 	 * @return True on success
 	 * @throws IOException
 	 */
-	public boolean postMCA(String videoId, String mcaName, String mcaType, double[] mcaData, String secretKey) throws IOException {
+	public boolean postMCA(String videoId, String mcaName, String mcaType, double[] mcaData, String secretKey, double weight) throws IOException {
 		final String baseUrl = constructUrl(METHOD_POSTMCA);
-		final PostMCARequest request = new PostMCARequest(videoId, mcaName, mcaType, mcaData);
+		final PostMCARequest request = new PostMCARequest(videoId, mcaName, mcaType, mcaData, weight);
 		final byte[] payload = Ajax.jsonSerialize(request);
 		
 		String sig;
@@ -282,6 +283,21 @@ public class LikeLinesWebService {
 	}
 	
 	/**
+	 * Posts MCA analysis results to the server for a given video with the default weight 1.0.
+	 * 
+	 * @param videoId The ID of the video
+	 * @param mcaName The MCA algorithm
+	 * @param mcaType The type of the MCA output (continuous "curve" or individual "points")
+	 * @param mcaData The MCA output
+	 * @param secretKey The secret key of the server
+	 * @return True on success
+	 * @throws IOException
+	 */
+	public boolean postMCA(String videoId, String mcaName, String mcaType, double[] mcaData, String secretKey) throws IOException {
+		return postMCA(videoId, mcaName, mcaType, mcaData, secretKey, 1.0);
+	}
+	
+	/**
 	 * The schema of the JSON payload for the postMCA API call.
 	 */
 	static class PostMCARequest {
@@ -289,12 +305,14 @@ public class LikeLinesWebService {
 		final public String mcaName;
 		final public String mcaType;
 		final public double[] mcaData;
+		final public double mcaWeight;
 		
-		private PostMCARequest(String videoId, String mcaName, String mcaType, double[] mcaData) {
+		private PostMCARequest(String videoId, String mcaName, String mcaType, double[] mcaData, double mcaWeight) {
 			this.videoId = videoId;
 			this.mcaName = mcaName;
 			this.mcaType = mcaType;
 			this.mcaData = mcaData;
+			this.mcaWeight = mcaWeight;
 		}
 		
 	}
