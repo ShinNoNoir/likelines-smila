@@ -127,7 +127,8 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			}
 		});
 		
-		if (candidates.length == 1) {
+		boolean sourceVideoFileExists = candidates.length == 1; 
+		if (sourceVideoFileExists) {
 			String source = candidates[0].getAbsolutePath();
 			
 			try {
