@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cubrikproject.tud.likelines.service.activator.Activator;
+import cubrikproject.tud.likelines.util.Ajax;
 import cubrikproject.tud.likelines.util.YouTubeComment;
 import cubrikproject.tud.likelines.util.YouTubeComment.TimePoint;
 import cubrikproject.tud.likelines.util.YouTubeDL;
@@ -27,6 +28,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.smila.utils.config.ConfigUtils;
+
+import com.google.gson.JsonObject;
 
 /**
  * The service responsible for launching indexing processes in the background.
@@ -287,10 +290,24 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 				for (int i = 0; i < deeplinks.length; i++)
 					deeplinks[i] = deeplinksList.get(i);
 				
+				// Note: this should be perhaps partially moved into the YouTubeDL class?
+				System.err.println("MCATask: Now retrieving metadata");
+				JsonObject jsonMetadata = Ajax
+						.getJSON("http://gdata.youtube.com/feeds/api/videos/"
+								+ youtubeId + "?v=2&alt=jsonc&prettyprint=true").getAsJsonObject();
+				int duration = -1;
+				try {
+					duration = jsonMetadata.get("data").getAsJsonObject().get("duration").getAsInt();
+				}
+				finally {}
+				
 				System.err.println("MCATask: Submitting MCA results to server: " + serverUrl);
 				
 				if (motionScores != null) {
 					llServer.postMCA(videoId, "motionActivity", llServer.MCA_TYPE_CURVE, motionScores, secretKey);
+				}
+				if (duration >= 0) {
+					llServer.postMCA(videoId, "duration", llServer.MCA_TYPE_POINT, new double[]{duration}, secretKey, 0.0);
 				}
 				llServer.postMCA(videoId, "deeplinks", llServer.MCA_TYPE_POINT, deeplinks, secretKey);
 			}
