@@ -115,9 +115,6 @@ public class LikeLines implements Pipelet {
 				}
 				resultCollector.addResult(id);
 				
-				boolean contentAnalysisRequired = agg.playbacks.size() < PERFORM_MCA_THRESHOLD || forceMCA;
-				_indexer.scheduleMCA(videoId, server, contentAnalysisRequired);
-				
 				List<String> encodedFrames = _indexer.extractFrames(videoId, nKeyFrames);
 				if (encodedFrames != null) {
 					AnySeq frames = blackboard.getMetadata(id).getSeq(outputFramesField, true);
@@ -125,6 +122,9 @@ public class LikeLines implements Pipelet {
 						frames.add(encodedFrame);
 					}
 				}
+				
+				boolean contentAnalysisRequired = agg.playbacks.size() < PERFORM_MCA_THRESHOLD || forceMCA;
+				_indexer.scheduleMCA(videoId, server, contentAnalysisRequired);
 			}
 			catch (Exception e) {
 				e.printStackTrace();

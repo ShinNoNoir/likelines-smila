@@ -127,42 +127,50 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 			}
 		});
 		
-		boolean sourceVideoFileExists = candidates.length == 1; 
-		if (sourceVideoFileExists) {
-			String source = candidates[0].getAbsolutePath();
+		final boolean sourceVideoFileExists = candidates.length == 1;
+		final String source = sourceVideoFileExists ? candidates[0].getAbsolutePath() : null;
+		
+		ArrayList<String> encodedFrames = new ArrayList<String>();
+		int numFramesAdded = 0;
+		
+		for (double timestamp : nKeyFrames) {
+			int ts = (int) timestamp;
 			
-			try {
-				ArrayList<String> encodedFrames = new ArrayList<String>();
+			File destination = new File(indexStoragePath, 
+					String.format(Locale.US, "mca-%s-frame_%03d.jpg", youtubeId, ts));
+			
+			if (sourceVideoFileExists && !destination.exists()) {
+				System.err.println(">>> LLIndexer: extractFrames: Extracting frame...: " + destination.getPath());
 				
-				for (double timestamp : nKeyFrames) {
-					int ts = (int) timestamp;
-					
-					File destination = new File(indexStoragePath, 
-							String.format(Locale.US, "mca-%s-frame_%03d.jpg", youtubeId, ts));
-					
-					if (!destination.exists()) {
-						System.err.println(">>> LLIndexer: extractFrames: Extracting frame...: " + destination.getPath());
-						boolean extractSuccess = frameExtractor.extractAndWait(source, timestamp, destination.getPath()) == 0;
-						
-						if (!extractSuccess) {
-							System.err.println(">>> LLIndexer: extractFrames: Extraction failed! " + destination.getPath());
-						}
-					}
-					
-					String base64Encoded = readFileBase64(destination);
-					encodedFrames.add(base64Encoded);
+				boolean extractSuccess = false;
+				try {
+					extractSuccess = frameExtractor.extractAndWait(source, timestamp, destination.getPath()) == 0;
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 				
-				res = encodedFrames;
-				
+				if (!extractSuccess) {
+					System.err.println(">>> LLIndexer: extractFrames: Extraction failed! " + destination.getPath());
+				}
+			}
+			
+			String base64Encoded = "";
+			try {
+				base64Encoded = readFileBase64(destination);
+				if (!base64Encoded.isEmpty())
+					numFramesAdded++;
 			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
+				System.err.println(">>> LLIndexer: extractFrames: error encoding " + destination.getPath());
 				e.printStackTrace();
 			}
+			encodedFrames.add(base64Encoded);
 		}
-		else {
-			System.err.println(">>> LLIndexer: extractFrames: video file not available");
+		
+		if (numFramesAdded > 0) {
+			res = encodedFrames;
+		}
+		else if (!sourceVideoFileExists && nKeyFrames.length > 0 && numFramesAdded == 0) {
+ 			System.err.println(">>> LLIndexer: extractFrames: video file not available and no previously extracted frames exist!");
 		}
 		
 		return res;
