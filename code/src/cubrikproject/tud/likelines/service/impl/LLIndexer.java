@@ -243,16 +243,33 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 					return;
 				}
 				
-				final String downloadPath = new File(indexStoragePath, "mca-" + youtubeId + firstStream.getExtension()).getPath();
-				firstStream.downloadTo(downloadPath);
+				final String sourceWithoutExtension = "mca-" + youtubeId;
+				File[] candidates = findFileWithoutExtension(new File(indexStoragePath), sourceWithoutExtension);
 				
-				final String convertPath = new File(indexStoragePath, "mca-" + youtubeId + "-conv.mpg").getPath();
-				boolean transcodeSuccess = transcoder.transcodeAndWait(downloadPath, convertPath) == 0;
+				final String sourceVideoPath;
+				if (candidates.length == 1) {
+					sourceVideoPath = candidates[0].getAbsolutePath();
+					System.err.println("MCATask: Skipping download, file already exists: " + sourceVideoPath);
+				}
+				else {
+					sourceVideoPath = new File(indexStoragePath, sourceWithoutExtension + firstStream.getExtension()).getPath();
+					firstStream.downloadTo(sourceVideoPath);
+				}
+				
+				final File convertedVideoFile = new File(indexStoragePath, sourceWithoutExtension + "-conv.mpg");
+				final String convertedVideoPath = convertedVideoFile.getPath();
+				
+				if (!convertedVideoFile.exists()) {
+					boolean transcodeSuccess = transcoder.transcodeAndWait(sourceVideoPath, convertedVideoPath) == 0;
+				}
+				else {
+					System.err.println("MCATask: Skipping conversion, file already exists: " + convertedVideoPath);
+				}
 				
 				final double[] motionScores;
 				if (contentAnalysisRequired) {
 					System.err.println("MCATask: Done converting, now starting motion analysis");
-					motionScores = motionActivityAnalyzer.analyze(convertPath);
+					motionScores = motionActivityAnalyzer.analyze(convertedVideoPath);
 				}
 				else {
 					System.err.println("MCATask: Skipping motion analysis (not required)");
