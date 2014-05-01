@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The FrameExtractor class extracts a frame from a given video
- * at a given time-point.
+ * The FrameExtractor class extracts a frame (max: 480p) 
+ * from a given video at a given time-point.
  * 
  * Basically, it is a wrapper for:
- *   FAST:      ffmpeg -y -ss OFFSET -i SRC -frames:v 1 DST
- *   ACCURATE:  ffmpeg -y -i SRC -ss OFFSET -frames:v 1 DST
- *   MIXED:     ffmpeg -y -ss OFFSET1 -i SRC -ss OFFSET2 -frames:v 1 DST 
+ *   FAST:      ffmpeg -y -ss OFFSET -i SRC -frames:v 1 -vf scale=-1:480 DST
+ *   ACCURATE:  ffmpeg -y -i SRC -ss OFFSET -frames:v 1 -vf scale=-1:480 DST
+ *   MIXED:     ffmpeg -y -ss OFFSET1 -i SRC -ss OFFSET2 -frames:v 1 -vf scale=-1:480 DST 
  * 
  * @author R. Vliegendhart
  */
@@ -86,6 +86,8 @@ public class FrameExtractor {
 		
 		arguments.add("-frames:v");
 		arguments.add("1");
+		arguments.add("-vf");
+		arguments.add("scale=-1:480");
 		arguments.add(destination);
 		
 		final ProcessBuilder pb = new ProcessBuilder(arguments.toArray(new String[arguments.size()]));
