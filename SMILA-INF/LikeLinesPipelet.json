@@ -18,6 +18,11 @@
       "type": "string"
     },
     {
+      "name": "output_frames_field",
+      "type": "string",
+      "optional": true
+    },
+    {
       "name": "force_mca",
       "type": "boolean",
       "optional": true

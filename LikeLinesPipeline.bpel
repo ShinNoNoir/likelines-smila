@@ -35,6 +35,7 @@
               <rec:Val key="input_field">youtube_id</rec:Val>
               <rec:Val key="n">1</rec:Val>
               <rec:Val key="output_field">topkeyframes</rec:Val>
+              <rec:Val key="output_frames_field">topkeyframes_jpg</rec:Val>
             </proc:configuration>
           </proc:invokePipelet>
         </extensionActivity>

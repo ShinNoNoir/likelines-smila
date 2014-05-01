@@ -1,5 +1,7 @@
 package cubrikproject.tud.likelines.pipelets;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,6 +42,9 @@ public class LikeLines implements Pipelet {
 
 	/** config property name for storing the output. */
 	private static final String PARAM_OUTPUT = "output_field";
+	
+	/** config property name for storing the base64-encoded frames output. */
+	private static final String PARAM_FRAMES_OUTPUT = "output_frames_field";
 	
 	/** config property name for forcing MCA. */
 	private static final String PARAM_FORCE_MCA = "force_mca";
@@ -90,6 +95,7 @@ public class LikeLines implements Pipelet {
 		final int N = Integer.parseInt(paramAccessor.getRequiredParameter(PARAM_N));
 		final String inputField = paramAccessor.getRequiredParameter(PARAM_ATTRIBUTE);
 		final String outputField = paramAccessor.getRequiredParameter(PARAM_OUTPUT);
+		final String outputFramesField = paramAccessor.getRequiredParameter(PARAM_FRAMES_OUTPUT);
 		final boolean forceMCA = Boolean.parseBoolean(paramAccessor.getParameter(PARAM_FORCE_MCA, "false"));
 		
 		for (String id : recordIds) {
@@ -103,13 +109,22 @@ public class LikeLines implements Pipelet {
 				LikeLinesWebService server = new LikeLinesWebService(serverUrl);
 				
 				Aggregate agg = server.aggregate(videoId);
-				for (double d : server.getNKeyFrames(N, agg)) {
+				final double[] nKeyFrames = server.getNKeyFrames(N, agg);
+				for (double d : nKeyFrames) {
 					timecodes.add(d);
 				}
 				resultCollector.addResult(id);
 				
 				boolean contentAnalysisRequired = agg.playbacks.size() < PERFORM_MCA_THRESHOLD || forceMCA;
 				_indexer.scheduleMCA(videoId, server, contentAnalysisRequired);
+				
+				List<String> encodedFrames = _indexer.extractFrames(videoId, nKeyFrames);
+				if (encodedFrames != null) {
+					AnySeq frames = blackboard.getMetadata(id).getSeq(outputFramesField, true);
+					for (String encodedFrame : encodedFrames) {
+						frames.add(encodedFrame);
+					}
+				}
 			}
 			catch (Exception e) {
 				e.printStackTrace();

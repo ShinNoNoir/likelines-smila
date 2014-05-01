@@ -47,9 +47,17 @@ RESULT (example):
        "_recordid": "LikeLinesPipeline-800097b9-62e4-4a7b-aab4-fba8d0df06c7",
        "topkeyframes":
        [
-           1
+           63
+       ],
+       "topkeyframes_jpg":
+       [
+           "...base64 encoded jpg..."
        ]
     }
+
+Note that the field "topkeyframes_jpg" is only available if the video has been 
+indexed and is still in the cache. Also, if frame extraction fails for one of 
+the frames, the corresponding entry will be an empty string. 
 
 
 Alternatively, if you're running SMILA 1.2, you can also test the pipelet 
@@ -63,7 +71,8 @@ REQUEST BODY:
     "server": "http://likelines-shinnonoir.dotcloud.com",
     "input_field": "youtube_id",
     "n": 3,
-    "output_field": "topkeyframes"
+    "output_field": "topkeyframes",
+    "output_frames_field": "topkeyframes_jpg"
   },
   "Text": "Some record",
   "youtube_id": "YouTube:wPTilA0XxYE"
@@ -81,8 +90,13 @@ RESULT (example):
   "youtube_id": "YouTube:wPTilA0XxYE",
   "_recordid": "cubrikproject.tud.likelines.pipelets.LikeLines-9e816aa0-3ca9-40de-aaa0-aed857e26291"
   "topkeyframes": [
-     1,
-     37,
-     63
+     63,
+     2,
+     37
+  ],
+  "topkeyframes_jpg": [
+     "...base64 encoded jpg...",
+     "...base64 encoded jpg...",
+     "...base64 encoded jpg..."
   ]
 }
