@@ -118,14 +118,8 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		final String youtubeId = videoId.substring("YouTube:".length());
 		
 		File index = new File(indexStoragePath);
-		File[] candidates = index.listFiles(new FilenameFilter() {
-			final String prefix = "mca-" + youtubeId + ".";
-			
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.startsWith(prefix);
-			}
-		});
+		String sourceWithoutExtension = "mca-" + youtubeId;
+		File[] candidates = findFileWithoutExtension(index, sourceWithoutExtension);
 		
 		final boolean sourceVideoFileExists = candidates.length == 1;
 		final String source = sourceVideoFileExists ? candidates[0].getAbsolutePath() : null;
@@ -174,6 +168,16 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		}
 		
 		return res;
+	}
+
+	private File[] findFileWithoutExtension(File dir, String baseFilename) {
+		final String prefix = baseFilename + ".";
+		return dir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.startsWith(prefix);
+			}
+		});
 	}
 	
 	private String readFileBase64(File path) throws IOException {
