@@ -1,12 +1,16 @@
 package cubrikproject.tud.likelines.service.impl;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -19,6 +23,7 @@ import cubrikproject.tud.likelines.util.YouTubeDL;
 import cubrikproject.tud.likelines.util.YouTubeDL.YouTubeStream;
 import cubrikproject.tud.likelines.webservice.LikeLinesWebService;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.smila.utils.config.ConfigUtils;
@@ -43,9 +48,10 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 	final Map<String, String> secretKeys;
 	
 	Transcoder transcoder;
+	FrameExtractor frameExtractor;
 	MotionActivityAnalyzer motionActivityAnalyzer;
 	
-	private final Set<String> indexedVideos = new HashSet<String>();  
+	private final Set<String> indexedVideos = new HashSet<String>();
 	
 	public LLIndexer() {
 		System.out.println(">>> LLIndexer: Reading (configuration/)" + Activator.BUNDLE_NAME + "/" + propertiesFile);
@@ -65,6 +71,7 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		testSecretKeys(secretKeys);
 		
 		transcoder = (ffmpegPath == null) ? null : new Transcoder(ffmpegPath);
+		frameExtractor = (ffmpegPath == null) ? null : new FrameExtractor(ffmpegPath);
 		motionActivityAnalyzer = (motionActivityPath == null) ? null : new MotionActivityAnalyzer(motionActivityPath);
 		indexStoragePath = prepareIndexStorage();
 		
@@ -100,6 +107,87 @@ public class LLIndexer implements cubrikproject.tud.likelines.service.interfaces
 		Thread thread = new Thread(new MCATask(videoId, llServer, contentAnalysisRequired));
 		thread.start();
 	}
+	
+	@Override
+	public List<String> extractFrames(String videoId, double[] nKeyFrames) {
+		List<String> res = null;
+		if (!videoId.startsWith("YouTube:")) {
+			System.err.println("MCATask only supports YouTube:<id>!");
+			return res;
+		}
+		final String youtubeId = videoId.substring("YouTube:".length());
+		
+		File index = new File(indexStoragePath);
+		File[] candidates = index.listFiles(new FilenameFilter() {
+			final String prefix = "mca-" + youtubeId + ".";
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.startsWith(prefix);
+			}
+		});
+		
+		if (candidates.length == 1) {
+			String source = candidates[0].getAbsolutePath();
+			
+			try {
+				ArrayList<String> encodedFrames = new ArrayList<String>();
+				
+				for (double timestamp : nKeyFrames) {
+					int ts = (int) timestamp;
+					
+					File destination = new File(indexStoragePath, 
+							String.format(Locale.US, "mca-%s-frame_%03d.jpg", youtubeId, ts));
+					
+					if (!destination.exists()) {
+						System.err.println(">>> LLIndexer: extractFrames: Extracting frame...: " + destination.getPath());
+						boolean extractSuccess = frameExtractor.extractAndWait(source, timestamp, destination.getPath()) == 0;
+						
+						if (!extractSuccess) {
+							System.err.println(">>> LLIndexer: extractFrames: Extraction failed! " + destination.getPath());
+						}
+					}
+					
+					String base64Encoded = readFileBase64(destination);
+					encodedFrames.add(base64Encoded);
+				}
+				
+				res = encodedFrames;
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			System.err.println(">>> LLIndexer: extractFrames: video file not available");
+		}
+		
+		return res;
+	}
+	
+	private String readFileBase64(File path) throws IOException {
+		String res = "";
+		if (path.exists()) {
+			byte[] buf = new byte[(int) path.length()];
+		    FileInputStream fis = null;
+		    DataInputStream dis;
+		    try {
+		        fis = new FileInputStream(path);
+		        dis = new DataInputStream(fis);
+		        dis.readFully(buf);
+		        byte[] base64Encoded = Base64.encodeBase64(buf);
+		        res = new String(base64Encoded, "US-ASCII");
+		    } finally { 
+	             if (fis != null) 
+	                  fis.close();
+		    }
+		}
+		
+	    return res;
+	}
+	
 	
 	public class MCATask implements Runnable {
 		

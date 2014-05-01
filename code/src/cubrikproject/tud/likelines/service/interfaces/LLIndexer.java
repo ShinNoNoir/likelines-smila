@@ -1,5 +1,7 @@
 package cubrikproject.tud.likelines.service.interfaces;
 
+import java.util.List;
+
 import cubrikproject.tud.likelines.webservice.LikeLinesWebService;
 
 public interface LLIndexer {
@@ -12,5 +14,15 @@ public interface LLIndexer {
 	 * @param contentAnalysisRequired Flag indicating whether content analysis is required
 	 */
 	public void scheduleMCA(String videoId, LikeLinesWebService llServer, boolean contentAnalysisRequired);
+
+	/**
+	 * Extracts frames from a video at given timestamps.
+	 * 
+	 * @param videoId The ID of the video which to extract frames from
+	 * @param nKeyFrames A list of timestamps
+	 * 
+	 * @return A list of base64 encoded JPEGs
+	 */
+	public List<String> extractFrames(String videoId, double[] nKeyFrames);
 
 }
