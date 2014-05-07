@@ -35,7 +35,7 @@ MAX_FILE_AGE = 5*DAYS
 
 # INTERVAL: How frequently to scan for old files. 
 #           If set to 0, the script only scans once. 
-INTERVAL = 2*SEC
+INTERVAL = 1*DAYS
 
 
 # USE_CREATION_TIME: Use date created if set to True, 
